@@ -47,7 +47,9 @@ button{touch-action:manipulation}
 .app{
   width:min(100%,700px);
   margin:0 auto;
-  padding:18px max(14px,env(safe-area-inset-right))
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    max(14px,env(safe-area-inset-right))
     calc(20px + env(safe-area-inset-bottom))
     max(14px,env(safe-area-inset-left));
   outline:none
@@ -60,6 +62,160 @@ button{touch-action:manipulation}
   gap:14px;
   margin-bottom:12px
 }
+
+.header-left{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  min-width:0
+}
+
+.timer-block{
+  min-width:94px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--panel);
+  padding:7px 10px 8px;
+  box-shadow:var(--shadow)
+}
+
+.timer-label{
+  display:block;
+  color:var(--muted);
+  font-size:.62rem;
+  font-weight:800;
+  letter-spacing:.12em;
+  line-height:1
+}
+
+.timer-display{
+  display:block;
+  margin-top:4px;
+  font-variant-numeric:tabular-nums;
+  font-size:1.12rem;
+  font-weight:850;
+  line-height:1.1
+}
+
+.title-block{min-width:0}
+
+.times-panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow)
+}
+
+.times-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px
+}
+
+.times-heading strong{display:block;font-size:.98rem}
+.times-heading small{display:block;color:var(--muted);margin-top:2px}
+
+.small-button{
+  min-height:38px;
+  padding:0 11px;
+  font-size:.78rem
+}
+
+.time-summary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px
+}
+
+.time-card{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:11px;
+  background:var(--card)
+}
+
+.time-card > span{
+  display:block;
+  color:var(--muted);
+  font-size:.7rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em
+}
+
+.time-card > strong{
+  display:block;
+  margin-top:3px;
+  font-size:1.3rem;
+  font-variant-numeric:tabular-nums
+}
+
+.time-card > small{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:.76rem
+}
+
+.history-title{
+  margin:14px 0 7px;
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em
+}
+
+.time-history{
+  display:grid;
+  gap:7px
+}
+
+.history-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  border-top:1px solid var(--border);
+  padding-top:7px
+}
+
+.history-main{
+  min-width:0
+}
+
+.history-main strong{
+  display:block;
+  font-size:.84rem
+}
+
+.history-main small{
+  display:block;
+  margin-top:1px;
+  color:var(--muted);
+  font-size:.7rem
+}
+
+.history-time{
+  font-size:.86rem;
+  font-weight:800;
+  font-variant-numeric:tabular-nums
+}
+
+.history-result{
+  min-width:62px;
+  text-align:right;
+  font-size:.75rem;
+  font-weight:800
+}
+
+.history-result.correct{color:var(--good)}
+.history-result.incorrect{color:var(--bad)}
+.empty-history{color:var(--muted);font-size:.82rem}
 
 h1{font-size:1.45rem;margin:0 0 3px}
 .topbar p{margin:0;color:var(--muted);font-size:.9rem}
@@ -382,8 +538,13 @@ h1{font-size:1.45rem;margin:0 0 3px}
 .hidden{display:none!important}
 
 @media(max-width:560px){
-  .app{padding-top:12px}
-  .topbar{align-items:center}
+  .app{padding-top:calc(12px + env(safe-area-inset-top))}
+  .topbar{align-items:flex-start}
+  .header-left{gap:9px;flex:1 1 100%}
+  .timer-block{min-width:88px;padding:7px 9px}
+  .timer-display{font-size:1rem}
+  .top-actions{width:100%;justify-content:stretch}
+  .top-actions .button{flex:1 1 calc(25% - 8px);padding:0 8px}
   .top-actions .button{padding:0 10px}
   .setting-row{align-items:flex-start;flex-direction:column}
   .segmented{width:100%}

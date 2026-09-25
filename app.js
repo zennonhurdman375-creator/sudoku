@@ -6,6 +6,15 @@
   const settingsPanel = document.getElementById('settingsPanel');
   const settingsBtn = document.getElementById('settingsBtn');
   const testingBtn = document.getElementById('testingBtn');
+  const timesBtn = document.getElementById('timesBtn');
+  const timesPanel = document.getElementById('timesPanel');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const bestTimeEl = document.getElementById('bestTime');
+  const bestModeEl = document.getElementById('bestMode');
+  const worstTimeEl = document.getElementById('worstTime');
+  const worstModeEl = document.getElementById('worstMode');
+  const timeHistoryEl = document.getElementById('timeHistory');
+  const clearTimesBtn = document.getElementById('clearTimesBtn');
   const modeBanner = document.getElementById('modeBanner');
   const newBtn = document.getElementById('newBtn');
   const submitBtn = document.getElementById('submitBtn');
@@ -33,7 +42,171 @@
   let generationId = 0;
   let maybeMode = false;
 
+  const TIME_HISTORY_KEY = 'sudokuTimeHistoryV1';
+  let timerStartedAt = 0;
+  let timerElapsedMs = 0;
+  let timerRunning = false;
+  let timerHasStarted = false;
+  let timerInterval = null;
+  let timeHistory = loadTimeHistory();
+
   const range = n => Array.from({length:n}, (_,i)=>i);
+
+  function formatTime(ms){
+    ms=Math.max(0,Number(ms)||0);
+    const tenths=Math.floor((ms%1000)/100);
+    const totalSeconds=Math.floor(ms/1000);
+    const seconds=totalSeconds%60;
+    const totalMinutes=Math.floor(totalSeconds/60);
+    const minutes=totalMinutes%60;
+    const hours=Math.floor(totalMinutes/60);
+
+    if(hours>0){
+      return `${hours}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${tenths}`;
+    }
+
+    return `${String(totalMinutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${tenths}`;
+  }
+
+  function updateTimerDisplay(){
+    const live=timerRunning
+      ? timerElapsedMs+(performance.now()-timerStartedAt)
+      : timerElapsedMs;
+
+    timerDisplay.textContent=formatTime(live);
+  }
+
+  function startTimer(){
+    if(timerRunning || timerHasStarted || locked) return;
+
+    timerHasStarted=true;
+    timerRunning=true;
+    timerStartedAt=performance.now();
+    updateTimerDisplay();
+
+    timerInterval=setInterval(updateTimerDisplay,100);
+  }
+
+  function stopTimer(){
+    if(timerRunning){
+      timerElapsedMs+=performance.now()-timerStartedAt;
+      timerRunning=false;
+      clearInterval(timerInterval);
+      timerInterval=null;
+      updateTimerDisplay();
+    }
+
+    return Math.round(timerElapsedMs);
+  }
+
+  function resetTimer(){
+    if(timerInterval){
+      clearInterval(timerInterval);
+      timerInterval=null;
+    }
+
+    timerStartedAt=0;
+    timerElapsedMs=0;
+    timerRunning=false;
+    timerHasStarted=false;
+    updateTimerDisplay();
+  }
+
+  function loadTimeHistory(){
+    try{
+      const parsed=JSON.parse(localStorage.getItem(TIME_HISTORY_KEY)||'[]');
+      return Array.isArray(parsed)?parsed:[];
+    }catch{
+      return [];
+    }
+  }
+
+  function persistTimeHistory(){
+    try{
+      localStorage.setItem(TIME_HISTORY_KEY,JSON.stringify(timeHistory));
+    }catch{}
+  }
+
+  function saveAttempt(correct,durationMs){
+    if(!timerHasStarted) return;
+
+    timeHistory.unshift({
+      durationMs:Math.max(0,Math.round(durationMs)),
+      difficulty,
+      correct:!!correct,
+      finishedAt:Date.now()
+    });
+
+    timeHistory=timeHistory.slice(0,100);
+    persistTimeHistory();
+    renderTimeHistory();
+  }
+
+  function renderTimeHistory(){
+    const completed=timeHistory.filter(item=>item.correct);
+
+    if(completed.length){
+      const best=completed.reduce((a,b)=>a.durationMs<=b.durationMs?a:b);
+      const worst=completed.reduce((a,b)=>a.durationMs>=b.durationMs?a:b);
+
+      bestTimeEl.textContent=formatTime(best.durationMs);
+      bestModeEl.textContent=`${labels[best.difficulty]||best.difficulty} • completed`;
+
+      worstTimeEl.textContent=formatTime(worst.durationMs);
+      worstModeEl.textContent=`${labels[worst.difficulty]||worst.difficulty} • completed`;
+    }else{
+      bestTimeEl.textContent='—';
+      bestModeEl.textContent='No completed games yet';
+      worstTimeEl.textContent='—';
+      worstModeEl.textContent='No completed games yet';
+    }
+
+    timeHistoryEl.innerHTML='';
+
+    if(!timeHistory.length){
+      const empty=document.createElement('div');
+      empty.className='empty-history';
+      empty.textContent='No attempts saved yet.';
+      timeHistoryEl.appendChild(empty);
+      return;
+    }
+
+    for(const item of timeHistory.slice(0,12)){
+      const row=document.createElement('div');
+      row.className='history-row';
+
+      const main=document.createElement('div');
+      main.className='history-main';
+
+      const mode=document.createElement('strong');
+      mode.textContent=labels[item.difficulty]||item.difficulty;
+
+      const date=document.createElement('small');
+      try{
+        date.textContent=new Date(item.finishedAt).toLocaleString([],{
+          month:'short',
+          day:'numeric',
+          hour:'numeric',
+          minute:'2-digit'
+        });
+      }catch{
+        date.textContent='';
+      }
+
+      main.append(mode,date);
+
+      const time=document.createElement('div');
+      time.className='history-time';
+      time.textContent=formatTime(item.durationMs);
+
+      const result=document.createElement('div');
+      result.className=`history-result ${item.correct?'correct':'incorrect'}`;
+      result.textContent=item.correct?'Correct':'Incorrect';
+
+      row.append(main,time,result);
+      timeHistoryEl.appendChild(row);
+    }
+  }
 
   function shuffled(arr){
     const a = arr.slice();
@@ -376,6 +549,7 @@
   function selectCell(i){
     if(locked) return;
 
+    startTimer();
     selected=i;
 
     mobileKeys.classList.toggle('hidden', !!puzzle[i]);
@@ -518,6 +692,7 @@
   function newPuzzle(){
     const id=++generationId;
 
+    resetTimer();
     locked=true;
     selected=-1;
     flashing=-1;
@@ -555,6 +730,8 @@
   function submit(){
     if(locked || !solution.length) return;
 
+    const finalTime=stopTimer();
+
     locked=true;
     mobileKeys.classList.add('hidden');
 
@@ -567,6 +744,7 @@
     }
 
     const correct=wrong.length===0;
+    saveAttempt(correct,finalTime);
     const cells=[...boardEl.children];
 
     cells.forEach((cell,i)=>{
@@ -604,7 +782,23 @@
   }
 
   settingsBtn.addEventListener('click',()=>{
+    timesPanel.classList.add('hidden');
     settingsPanel.classList.toggle('hidden');
+  });
+
+  timesBtn.addEventListener('click',()=>{
+    settingsPanel.classList.add('hidden');
+    renderTimeHistory();
+    timesPanel.classList.toggle('hidden');
+  });
+
+  clearTimesBtn.addEventListener('click',()=>{
+    const ok=window.confirm('Clear all saved Sudoku times on this device?');
+    if(!ok) return;
+
+    timeHistory=[];
+    persistTimeHistory();
+    renderTimeHistory();
   });
 
   testingBtn.addEventListener('click',toggleMaybeMode);
@@ -672,5 +866,7 @@
     });
   }
 
+  renderTimeHistory();
+  resetTimer();
   newPuzzle();
 })();

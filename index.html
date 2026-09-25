@@ -17,15 +17,22 @@
 <body>
   <main class="app" id="app" tabindex="0">
     <header class="topbar">
-      <div>
-        <h1>Sudoku</h1>
-        <p id="subtitle">No guessing required • Easy</p>
+      <div class="header-left">
+        <div class="timer-block" aria-label="Puzzle timer">
+          <span class="timer-label">TIME</span>
+          <span id="timerDisplay" class="timer-display">00:00.0</span>
+        </div>
+        <div class="title-block">
+          <h1>Sudoku</h1>
+          <p id="subtitle">No guessing required • Easy</p>
+        </div>
       </div>
 
       <div class="top-actions">
         <button id="testingBtn" class="button testing" type="button" aria-pressed="false">
           Maybe
         </button>
+        <button id="timesBtn" class="button ghost" type="button">Times</button>
         <button id="settingsBtn" class="button ghost" type="button">Settings</button>
         <button id="newBtn" class="button primary" type="button">New</button>
       </div>
@@ -33,6 +40,34 @@
 
     <section id="modeBanner" class="mode-banner hidden" aria-live="polite">
       Maybe mode is on — numbers are saved as small orange notes.
+    </section>
+
+    <section id="timesPanel" class="times-panel hidden" aria-label="Times and statistics">
+      <div class="times-heading">
+        <div>
+          <strong>Your Times</strong>
+          <small>Saved on this device.</small>
+        </div>
+        <button id="clearTimesBtn" class="button ghost small-button" type="button">Clear history</button>
+      </div>
+
+      <div class="time-summary">
+        <div class="time-card">
+          <span>Best</span>
+          <strong id="bestTime">—</strong>
+          <small id="bestMode">No completed games yet</small>
+        </div>
+        <div class="time-card">
+          <span>Worst</span>
+          <strong id="worstTime">—</strong>
+          <small id="worstMode">No completed games yet</small>
+        </div>
+      </div>
+
+      <div class="history-title">Recent attempts</div>
+      <div id="timeHistory" class="time-history">
+        <div class="empty-history">No attempts saved yet.</div>
+      </div>
     </section>
 
     <section id="settingsPanel" class="settings-panel hidden" aria-label="Settings">
