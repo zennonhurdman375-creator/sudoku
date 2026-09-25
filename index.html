@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sudoku" />
+  <title>Sudoku</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app" id="app" tabindex="0">
+    <header class="topbar">
+      <div>
+        <h1>Sudoku</h1>
+        <p id="subtitle">No guessing required • Easy</p>
+      </div>
+
+      <div class="top-actions">
+        <button id="testingBtn" class="button testing" type="button" aria-pressed="false">
+          Maybe
+        </button>
+        <button id="settingsBtn" class="button ghost" type="button">Settings</button>
+        <button id="newBtn" class="button primary" type="button">New</button>
+      </div>
+    </header>
+
+    <section id="modeBanner" class="mode-banner hidden" aria-live="polite">
+      Maybe mode is on — numbers are saved as small orange notes.
+    </section>
+
+    <section id="settingsPanel" class="settings-panel hidden" aria-label="Settings">
+      <div class="setting-row">
+        <div>
+          <strong>Difficulty</strong>
+          <small>Harder modes start with fewer numbers.</small>
+        </div>
+        <div class="segmented" role="group" aria-label="Difficulty">
+          <button type="button" data-difficulty="easy" class="active">Easy</button>
+          <button type="button" data-difficulty="medium">Medium</button>
+          <button type="button" data-difficulty="hard">Hard</button>
+        </div>
+      </div>
+
+      <div class="setting-row divider">
+        <div>
+          <strong>Reject wrong numbers</strong>
+          <small>
+            Wrong answers flash red three times and disappear. Visible row, column,
+            or box conflicts flash too.
+          </small>
+        </div>
+        <label class="switch">
+          <input id="rejectMistakes" type="checkbox" checked />
+          <span></span>
+        </label>
+      </div>
+
+      <div class="setting-note">
+        Each puzzle is checked to have a single solution and a direct logical route
+        using singles, so guessing is not required.
+      </div>
+    </section>
+
+    <div id="status" class="status" aria-live="polite">
+      Select an empty square and enter a number.
+    </div>
+
+    <section class="board-wrap">
+      <div id="board" class="board" role="grid" aria-label="Sudoku board"></div>
+    </section>
+
+    <section id="mobileKeys" class="mobile-keys hidden" aria-label="Number keypad">
+      <div id="keypadLabel" class="keypad-label">Choose a number</div>
+      <div class="keypad">
+        <button type="button" data-number="1">1</button>
+        <button type="button" data-number="2">2</button>
+        <button type="button" data-number="3">3</button>
+        <button type="button" data-number="4">4</button>
+        <button type="button" data-number="5">5</button>
+        <button type="button" data-number="6">6</button>
+        <button type="button" data-number="7">7</button>
+        <button type="button" data-number="8">8</button>
+        <button type="button" data-number="9">9</button>
+      </div>
+      <button id="clearBtn" class="button ghost clear-button" type="button">
+        Clear square
+      </button>
+    </section>
+
+    <footer class="bottom-bar">
+      <span>
+        Keyboard: 1–9 • Backspace clears • M toggles Maybe • Enter submits
+      </span>
+      <button id="submitBtn" class="button submit" type="button">Submit</button>
+    </footer>
+
+    <section id="resultPanel" class="result hidden" aria-live="polite">
+      <h2 id="resultTitle"></h2>
+      <p id="resultText"></p>
+      <button id="resultNewBtn" class="button primary" type="button">New Puzzle</button>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
